@@ -427,6 +427,185 @@ select {
   color: #4b5563;
 }
 
+.statistics-alert {
+  margin-bottom: 18px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card,
+.statistics-panel {
+  background: #ffffff;
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+}
+
+.metric-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 134px;
+  gap: 16px;
+  padding: 24px;
+}
+
+.metric-card span,
+.metric-card small {
+  display: block;
+  color: #526071;
+}
+
+.metric-card span {
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.metric-card strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 28px;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.metric-card small {
+  font-size: 13px;
+}
+
+.metric-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+}
+
+.metric-card-blue .metric-icon {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.metric-card-green .metric-icon {
+  color: #059669;
+  background: #d1fae5;
+}
+
+.metric-card-orange .metric-icon {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.metric-card-purple .metric-icon {
+  color: #7c3aed;
+  background: #ede9fe;
+}
+
+.statistics-panel {
+  padding: 24px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 32px;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #526071;
+}
+
+.status-panel {
+  margin-bottom: 24px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 132px;
+  justify-content: center;
+  padding: 18px 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+}
+
+.status-item strong {
+  font-size: 25px;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.status-item span:not(.status-dot) {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #526071;
+}
+
+.status-item small {
+  margin-top: 8px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  background: #eef2f7;
+  border-radius: 999px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.chart-panel {
+  min-width: 0;
+}
+
+.trend-panel {
+  grid-column: 1 / -1;
+}
+
+.chart-surface {
+  width: 100%;
+  height: 340px;
+}
+
+.chart-surface-wide {
+  height: 300px;
+}
+
 @media (max-width: 900px) {
   .sidebar {
     width: 72px !important;
@@ -447,6 +626,15 @@ select {
 
   .health-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-grid,
+  .chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .filter-card .el-col {
@@ -487,5 +675,20 @@ select {
 
   .health-grid {
     grid-template-columns: 1fr;
+  }
+
+  .metric-grid,
+  .chart-grid,
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    min-height: 116px;
+  }
+
+  .chart-surface,
+  .chart-surface-wide {
+    height: 280px;
   }
 }

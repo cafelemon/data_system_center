@@ -2,8 +2,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import ArchiveListView from '@/views/ArchiveListView.vue'
 import MainLayout from '@/layouts/MainLayout.vue'
-import FoundationView from '@/views/FoundationView.vue'
 import LoginView from '@/views/LoginView.vue'
+import StatisticsView from '@/views/StatisticsView.vue'
 import SystemSettingsView from '@/views/SystemSettingsView.vue'
 import UserManagementView from '@/views/UserManagementView.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -54,7 +54,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'statistics',
         name: 'statistics',
-        component: FoundationView,
+        component: StatisticsView,
         meta: {
           title: '数据统计',
           subtitle: '档案资产概况与分布趋势分析',
