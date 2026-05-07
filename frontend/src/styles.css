@@ -1,0 +1,491 @@
+:root {
+  color: #1f2937;
+  background: #f5f6f8;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f5f6f8;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.2s ease;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 88px;
+  padding: 0 16px;
+}
+
+.brand.collapsed {
+  justify-content: center;
+  padding: 0;
+}
+
+.brand-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: #ffffff;
+  background: #1d4ed8;
+  border-radius: 8px;
+}
+
+.brand-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.brand-copy strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.brand-copy span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.side-menu {
+  border-right: 0;
+}
+
+.side-menu:not(.el-menu--collapse) {
+  padding: 0 8px;
+}
+
+.side-menu .el-menu-item {
+  height: 40px;
+  margin: 4px 0;
+  border-radius: 6px;
+  color: #111827;
+}
+
+.side-menu .el-menu-item.is-active {
+  color: #1d4ed8;
+  background: #eaf0ff;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  gap: 12px;
+  padding: 0 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.collapse-button {
+  width: 36px;
+  height: 36px;
+}
+
+.topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.content {
+  padding: 28px 32px;
+  background: #f5f6f8;
+}
+
+.page {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.25;
+  color: #111827;
+}
+
+.page-header p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.page-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.foundation-card {
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.health-item {
+  min-height: 96px;
+  padding: 18px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.health-item span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.health-item strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 18px;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.el-tag .el-icon {
+  margin-right: 4px;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(245, 246, 248, 0.94)),
+    #eef2f7;
+}
+
+.login-panel {
+  width: min(420px, 100%);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.login-brand h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.25;
+  color: #111827;
+}
+
+.login-brand p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.login-card {
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+}
+
+.login-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-card-header strong {
+  font-size: 18px;
+  color: #111827;
+}
+
+.login-card-header span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.login-submit {
+  width: 100%;
+}
+
+.login-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px;
+  font-size: 13px;
+  background: #f8fafc;
+  border-radius: 6px;
+  color: #6b7280;
+}
+
+.login-hint strong {
+  color: #1f2937;
+}
+
+.filter-card,
+.table-card {
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+}
+
+.filter-card {
+  margin-bottom: 24px;
+}
+
+.filter-card .el-select,
+.filter-card .el-input {
+  width: 100%;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.filter-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.filter-reset-col {
+  display: flex;
+  align-items: flex-end;
+}
+
+.filter-reset-col .el-button {
+  width: 100%;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.user-cell strong {
+  display: block;
+  color: #111827;
+}
+
+.user-cell span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: 18px 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.archive-page .el-date-editor.el-input,
+.archive-page .el-select,
+.archive-page .el-input-number {
+  width: 100%;
+}
+
+.archive-page .el-table .el-tag {
+  min-width: 46px;
+  justify-content: center;
+}
+
+.archive-descriptions {
+  margin-top: 4px;
+}
+
+.settings-card {
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+}
+
+.settings-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.settings-tabs {
+  min-width: 0;
+}
+
+.settings-tabs .el-tabs__header {
+  margin-bottom: 0;
+}
+
+.settings-tabs .el-tabs__nav-wrap::after {
+  display: none;
+}
+
+.status-switch-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #4b5563;
+}
+
+.danger-action {
+  color: #ef4444;
+}
+
+.form-switch-text {
+  margin-left: 10px;
+  color: #4b5563;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 72px !important;
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .brand-copy {
+    display: none;
+  }
+
+  .content {
+    padding: 20px 16px;
+  }
+
+  .health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-card .el-col {
+    margin-bottom: 12px;
+  }
+
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+
+  .page-actions .el-button {
+    flex: 1;
+  }
+
+  .settings-toolbar {
+    flex-direction: column;
+  }
+
+  .pagination-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    padding: 0 14px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+}

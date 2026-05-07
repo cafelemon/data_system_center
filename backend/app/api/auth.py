@@ -1,0 +1,57 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+from starlette import status
+
+from app.api.deps import get_current_user, get_db
+from app.core.responses import ApiResponse, ok
+from app.core.security import create_access_token, verify_password
+from app.models import User
+from app.schemas.auth import LoginRequest, TokenResponse
+from app.schemas.user import UserRead
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@router.post("/login", response_model=ApiResponse[TokenResponse])
+def login(
+    payload: LoginRequest,
+    db: Session = Depends(get_db),
+) -> ApiResponse[TokenResponse]:
+    user = db.scalar(
+        select(User)
+        .options(selectinload(User.role), selectinload(User.department))
+        .where(User.username == payload.username)
+    )
+    if user is None or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="用户名或密码错误",
+        )
+    if user.status != "enabled":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="账号已禁用",
+        )
+    if not user.role.enabled:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="账号角色已停用",
+        )
+
+    access_token, expires_in = create_access_token(user.id)
+    return ok(
+        TokenResponse(
+            access_token=access_token,
+            token_type="bearer",
+            expires_in=expires_in,
+            user=UserRead.model_validate(user),
+        )
+    )
+
+
+@router.get("/me", response_model=ApiResponse[UserRead])
+def read_current_user(
+    current_user: User = Depends(get_current_user),
+) -> ApiResponse[UserRead]:
+    return ok(UserRead.model_validate(current_user))
