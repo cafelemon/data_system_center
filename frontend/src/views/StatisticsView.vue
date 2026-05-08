@@ -19,10 +19,12 @@ import {
   type DistributionItem,
   type MonthlyTrendItem,
   type StatisticsOverviewResponse,
+  type StatisticsArchiveMedium,
 } from '@/api/statistics'
 
 const loading = ref(false)
 const errorMessage = ref('')
+const archiveMedium = ref<StatisticsArchiveMedium>('all')
 const overview = ref<StatisticsOverviewResponse | null>(null)
 const statusItems = ref<DistributionItem[]>([])
 const typeItems = ref<DistributionItem[]>([])
@@ -88,6 +90,12 @@ const metricCards = computed(() => [
     tone: 'purple',
   },
 ])
+
+const mediumTabs: Array<{ label: string; value: StatisticsArchiveMedium }> = [
+  { label: '全部', value: 'all' },
+  { label: '纸质', value: 'paper' },
+  { label: '电子', value: 'electronic' },
+]
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('zh-CN').format(value)
@@ -328,13 +336,16 @@ async function loadStatistics() {
   errorMessage.value = ''
 
   try {
+    const params = {
+      archive_medium: archiveMedium.value,
+    }
     const [overviewResponse, statusResponse, typeResponse, departmentResponse, trendResponse] =
       await Promise.all([
-        getStatisticsOverview(),
-        getStatusDistribution(),
-        getTypeDistribution(),
-        getDepartmentRanking(8),
-        getMonthlyTrend(12),
+        getStatisticsOverview(params),
+        getStatusDistribution(params),
+        getTypeDistribution(params),
+        getDepartmentRanking(8, params),
+        getMonthlyTrend(12, params),
       ])
 
     overview.value = overviewResponse.data
@@ -349,6 +360,10 @@ async function loadStatistics() {
   } finally {
     loading.value = false
   }
+}
+
+function handleMediumChange() {
+  loadStatistics()
 }
 
 onMounted(() => {
@@ -372,6 +387,13 @@ onUnmounted(() => {
         <p>档案资产概况与分布趋势分析</p>
       </div>
       <div class="page-actions">
+        <el-segmented
+          v-model="archiveMedium"
+          class="statistics-medium-switch"
+          :options="mediumTabs"
+          :disabled="loading"
+          @change="handleMediumChange"
+        />
         <el-button :icon="Refresh" :loading="loading" @click="loadStatistics">
           刷新
         </el-button>

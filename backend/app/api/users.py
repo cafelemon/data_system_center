@@ -9,7 +9,7 @@ from app.api.deps import get_db, require_admin_user
 from app.core.config import settings
 from app.core.responses import ApiResponse, ok
 from app.core.security import hash_password
-from app.models import Department, OperationLog, Role, User
+from app.models import Department, Role, User
 from app.schemas.user import (
     SelectOption,
     StatusOption,
@@ -20,6 +20,7 @@ from app.schemas.user import (
     UserStatusUpdate,
     UserUpdate,
 )
+from app.services.operation_logs import write_operation_log
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -95,16 +96,15 @@ def write_user_log(
     detail: str,
     request: Request,
 ) -> None:
-    db.add(
-        OperationLog(
-            user_id=operator.id,
-            module="用户管理",
-            operation_type=operation_type,
-            target_id=str(target_user.id),
-            target_name=target_user.real_name,
-            operation_detail=detail,
-            ip_address=request.client.host if request.client else None,
-        )
+    write_operation_log(
+        db,
+        module="用户管理",
+        operation_type=operation_type,
+        operator=operator,
+        target_id=str(target_user.id),
+        target_name=target_user.real_name,
+        detail=detail,
+        request=request,
     )
 
 

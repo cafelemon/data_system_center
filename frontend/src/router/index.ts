@@ -3,6 +3,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ArchiveListView from '@/views/ArchiveListView.vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 import LoginView from '@/views/LoginView.vue'
+import OperationLogsView from '@/views/OperationLogsView.vue'
 import StatisticsView from '@/views/StatisticsView.vue'
 import SystemSettingsView from '@/views/SystemSettingsView.vue'
 import UserManagementView from '@/views/UserManagementView.vue'
@@ -20,15 +21,30 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: MainLayout,
-    redirect: '/archives',
+    redirect: '/paper-archives',
     children: [
       {
         path: 'archives',
-        name: 'archives',
+        redirect: '/paper-archives',
+      },
+      {
+        path: 'paper-archives',
+        name: 'paper-archives',
         component: ArchiveListView,
         meta: {
-          title: '档案列表',
-          subtitle: '管理系统中的所有档案记录，支持检索、筛选与导出',
+          title: '纸质档案管理',
+          subtitle: '管理纸质档案目录、纸质份数、归档部门与存放位置',
+          archiveMedium: 'paper',
+        },
+      },
+      {
+        path: 'electronic-archives',
+        name: 'electronic-archives',
+        component: ArchiveListView,
+        meta: {
+          title: '电子档案管理',
+          subtitle: '管理电子档案目录、归档部门与电子存储路径',
+          archiveMedium: 'electronic',
         },
       },
       {
@@ -60,6 +76,16 @@ export const routes: RouteRecordRaw[] = [
           subtitle: '档案资产概况与分布趋势分析',
         },
       },
+      {
+        path: 'operation-logs',
+        name: 'operation-logs',
+        component: OperationLogsView,
+        meta: {
+          title: '操作日志',
+          subtitle: '查看系统关键操作、登录、导出和配置修改记录',
+          requiresAdmin: true,
+        },
+      },
     ],
   },
 ]
@@ -82,7 +108,7 @@ router.beforeEach(async (to) => {
           return true
         }
       }
-      return String(to.query.redirect || '/archives')
+      return String(to.query.redirect || '/paper-archives')
     }
     return true
   }
@@ -111,7 +137,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    return '/archives'
+    return '/paper-archives'
   }
 
   return true

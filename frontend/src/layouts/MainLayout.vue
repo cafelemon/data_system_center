@@ -5,6 +5,7 @@ import {
   Fold,
   Setting,
   SwitchButton,
+  Tickets,
   User,
 } from '@element-plus/icons-vue'
 import { computed } from 'vue'
@@ -21,10 +22,12 @@ const authStore = useAuthStore()
 const activeMenu = computed(() => route.path)
 
 const menus = [
-  { path: '/archives', label: '档案列表', icon: Document },
+  { path: '/paper-archives', label: '纸质档案管理', icon: Document },
+  { path: '/electronic-archives', label: '电子档案管理', icon: Document },
   { path: '/users', label: '用户管理', icon: User, requiresAdmin: true },
   { path: '/settings', label: '系统设置', icon: Setting },
   { path: '/statistics', label: '数据统计', icon: DataAnalysis },
+  { path: '/operation-logs', label: '操作日志', icon: Tickets, requiresAdmin: true },
 ]
 
 const visibleMenus = computed(() =>

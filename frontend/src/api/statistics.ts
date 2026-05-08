@@ -1,5 +1,11 @@
 import { request, type ApiResponse } from './request'
 
+export type StatisticsArchiveMedium = 'all' | 'paper' | 'electronic'
+
+export interface StatisticsParams {
+  archive_medium?: StatisticsArchiveMedium
+}
+
 export interface StatisticsOverviewResponse {
   total_archives: number
   monthly_new: number
@@ -40,41 +46,45 @@ export interface MonthlyTrendResponse {
   items: MonthlyTrendItem[]
 }
 
-export function getStatisticsOverview() {
+export function getStatisticsOverview(params?: StatisticsParams) {
   return request.get<
     StatisticsOverviewResponse,
     ApiResponse<StatisticsOverviewResponse>
-  >('/api/statistics/overview')
+  >('/api/statistics/overview', { params })
 }
 
-export function getStatusDistribution() {
+export function getStatusDistribution(params?: StatisticsParams) {
   return request.get<DistributionResponse, ApiResponse<DistributionResponse>>(
     '/api/statistics/status-distribution',
+    { params },
   )
 }
 
-export function getTypeDistribution() {
+export function getTypeDistribution(params?: StatisticsParams) {
   return request.get<DistributionResponse, ApiResponse<DistributionResponse>>(
     '/api/statistics/type-distribution',
+    { params },
   )
 }
 
-export function getDepartmentRanking(limit = 8) {
+export function getDepartmentRanking(limit = 8, params?: StatisticsParams) {
   return request.get<
     DepartmentRankingResponse,
     ApiResponse<DepartmentRankingResponse>
   >('/api/statistics/department-ranking', {
     params: {
+      ...params,
       limit,
     },
   })
 }
 
-export function getMonthlyTrend(months = 12) {
+export function getMonthlyTrend(months = 12, params?: StatisticsParams) {
   return request.get<MonthlyTrendResponse, ApiResponse<MonthlyTrendResponse>>(
     '/api/statistics/monthly-trend',
     {
       params: {
+        ...params,
         months,
       },
     },

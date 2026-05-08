@@ -17,6 +17,7 @@ class Archive(TimestampMixin, Base):
         ForeignKey("archive_types.id"),
         nullable=False,
     )
+    internal_archive_type: Mapped[str] = mapped_column(String(100), nullable=False)
     status_id: Mapped[int] = mapped_column(
         ForeignKey("archive_statuses.id"),
         nullable=False,
@@ -29,8 +30,12 @@ class Archive(TimestampMixin, Base):
         ForeignKey("departments.id"),
         nullable=False,
     )
+    archive_medium: Mapped[str] = mapped_column(String(20), nullable=False, default="paper")
+    paper_copies: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     archive_date: Mapped[date | None] = mapped_column(Date)
-    storage_location: Mapped[str | None] = mapped_column(String(100))
+    paper_storage_location: Mapped[str | None] = mapped_column(String(100))
+    electronic_storage_path: Mapped[str | None] = mapped_column(String(255))
+    archiver_name: Mapped[str | None] = mapped_column(String(100))
     owner_name: Mapped[str | None] = mapped_column(String(100))
     archive_year: Mapped[int | None] = mapped_column(Integer)
     security_level: Mapped[str | None] = mapped_column(String(50))

@@ -386,6 +386,19 @@ select {
   margin-top: 4px;
 }
 
+.operation-log-page .el-date-editor.el-input,
+.operation-log-page .el-date-editor.el-input__wrapper,
+.operation-log-page .el-date-editor--daterange {
+  width: 100%;
+}
+
+.log-detail-cell {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .settings-card {
   border: 1px solid #d9dee8;
   border-radius: 8px;
@@ -429,6 +442,10 @@ select {
 
 .statistics-alert {
   margin-bottom: 18px;
+}
+
+.statistics-medium-switch {
+  min-width: 184px;
 }
 
 .metric-grid {

@@ -1,5 +1,5 @@
 from datetime import UTC, date, datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
@@ -27,6 +27,15 @@ from app.schemas.statistics import (
 
 router = APIRouter(prefix="/statistics", tags=["statistics"])
 
+StatisticsArchiveMedium = Literal["all", "paper", "electronic"]
+
+
+def archive_medium_conditions(archive_medium: StatisticsArchiveMedium):
+    conditions = [Archive.deleted_at.is_(None)]
+    if archive_medium != "all":
+        conditions.append(Archive.archive_medium == archive_medium)
+    return conditions
+
 
 def add_years(value: date, years: int) -> date:
     try:
@@ -52,28 +61,39 @@ def percentage(count: int, total: int) -> float:
     return round(count * 100 / total, 1)
 
 
-def total_archive_count(db: Session) -> int:
+def total_archive_count(db: Session, archive_medium: StatisticsArchiveMedium) -> int:
     return db.scalar(
-        select(func.count()).select_from(Archive).where(Archive.deleted_at.is_(None))
+        select(func.count())
+        .select_from(Archive)
+        .where(*archive_medium_conditions(archive_medium))
     ) or 0
 
 
-def count_by_archive_field(db: Session, field) -> dict[int, int]:
+def count_by_archive_field(
+    db: Session,
+    field,
+    archive_medium: StatisticsArchiveMedium,
+) -> dict[int, int]:
     rows = db.execute(
         select(field, func.count(Archive.id))
-        .where(Archive.deleted_at.is_(None))
+        .where(*archive_medium_conditions(archive_medium))
         .group_by(field)
     ).all()
     return {item_id: count for item_id, count in rows if item_id is not None}
 
 
-def count_expiring_soon(db: Session, today: date, days: int = 90) -> int:
+def count_expiring_soon(
+    db: Session,
+    today: date,
+    archive_medium: StatisticsArchiveMedium,
+    days: int = 90,
+) -> int:
     deadline = today + timedelta(days=days)
     rows = db.execute(
         select(Archive.archive_date, RetentionPeriod.years)
         .join(RetentionPeriod, Archive.retention_period_id == RetentionPeriod.id)
         .where(
-            Archive.deleted_at.is_(None),
+            *archive_medium_conditions(archive_medium),
             Archive.archive_date.is_not(None),
             RetentionPeriod.years > 0,
         )
@@ -89,6 +109,7 @@ def count_expiring_soon(db: Session, today: date, days: int = 90) -> int:
 
 @router.get("/overview", response_model=ApiResponse[StatisticsOverviewResponse])
 def get_statistics_overview(
+    archive_medium: StatisticsArchiveMedium = Query(default="all"),
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
 ) -> ApiResponse[StatisticsOverviewResponse]:
@@ -100,19 +121,19 @@ def get_statistics_overview(
         else datetime(today.year, today.month + 1, 1, tzinfo=UTC)
     )
 
-    total = total_archive_count(db)
+    total = total_archive_count(db, archive_medium)
     monthly_new = db.scalar(
         select(func.count())
         .select_from(Archive)
         .where(
-            Archive.deleted_at.is_(None),
+            *archive_medium_conditions(archive_medium),
             Archive.created_at >= current_month_start,
             Archive.created_at < next_month_start,
         )
     ) or 0
     department_count = db.scalar(
         select(func.count(func.distinct(Archive.department_id))).where(
-            Archive.deleted_at.is_(None)
+            *archive_medium_conditions(archive_medium)
         )
     ) or 0
 
@@ -120,7 +141,7 @@ def get_statistics_overview(
         StatisticsOverviewResponse(
             total_archives=total,
             monthly_new=monthly_new,
-            expiring_soon=count_expiring_soon(db, today),
+            expiring_soon=count_expiring_soon(db, today, archive_medium),
             department_count=department_count,
         )
     )
@@ -128,11 +149,12 @@ def get_statistics_overview(
 
 @router.get("/status-distribution", response_model=ApiResponse[DistributionResponse])
 def get_status_distribution(
+    archive_medium: StatisticsArchiveMedium = Query(default="all"),
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
 ) -> ApiResponse[DistributionResponse]:
-    total = total_archive_count(db)
-    counts = count_by_archive_field(db, Archive.status_id)
+    total = total_archive_count(db, archive_medium)
+    counts = count_by_archive_field(db, Archive.status_id, archive_medium)
     statuses = db.scalars(
         select(ArchiveStatus).order_by(
             ArchiveStatus.sort_order.asc(),
@@ -159,11 +181,12 @@ def get_status_distribution(
 
 @router.get("/type-distribution", response_model=ApiResponse[DistributionResponse])
 def get_type_distribution(
+    archive_medium: StatisticsArchiveMedium = Query(default="all"),
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
 ) -> ApiResponse[DistributionResponse]:
-    total = total_archive_count(db)
-    counts = count_by_archive_field(db, Archive.archive_type_id)
+    total = total_archive_count(db, archive_medium)
+    counts = count_by_archive_field(db, Archive.archive_type_id, archive_medium)
     archive_types = db.scalars(
         select(ArchiveType).order_by(ArchiveType.sort_order.asc(), ArchiveType.id.asc())
     ).all()
@@ -188,6 +211,7 @@ def get_type_distribution(
 @router.get("/department-ranking", response_model=ApiResponse[DepartmentRankingResponse])
 def get_department_ranking(
     limit: Annotated[int, Query(ge=1, le=20)] = 8,
+    archive_medium: StatisticsArchiveMedium = Query(default="all"),
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
 ) -> ApiResponse[DepartmentRankingResponse]:
@@ -195,7 +219,7 @@ def get_department_ranking(
     rows = db.execute(
         select(Department.id, Department.name, Department.code, archive_count)
         .join(Archive, Archive.department_id == Department.id)
-        .where(Archive.deleted_at.is_(None))
+        .where(*archive_medium_conditions(archive_medium))
         .group_by(Department.id, Department.name, Department.code, Department.sort_order)
         .order_by(archive_count.desc(), Department.sort_order.asc(), Department.id.asc())
         .limit(limit)
@@ -219,12 +243,13 @@ def get_department_ranking(
 @router.get("/monthly-trend", response_model=ApiResponse[MonthlyTrendResponse])
 def get_monthly_trend(
     months: Annotated[int, Query(ge=1, le=36)] = 12,
+    archive_medium: StatisticsArchiveMedium = Query(default="all"),
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
 ) -> ApiResponse[MonthlyTrendResponse]:
     max_archive_date = db.scalar(
         select(func.max(Archive.archive_date)).where(
-            Archive.deleted_at.is_(None),
+            *archive_medium_conditions(archive_medium),
             Archive.archive_date.is_not(None),
         )
     )
@@ -235,7 +260,7 @@ def get_monthly_trend(
     rows = db.execute(
         select(Archive.archive_date)
         .where(
-            Archive.deleted_at.is_(None),
+            *archive_medium_conditions(archive_medium),
             Archive.archive_date >= start_month,
             Archive.archive_date < end_exclusive,
         )

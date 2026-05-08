@@ -1,5 +1,7 @@
 import { request, type ApiResponse } from './request'
 
+export type ArchiveMedium = 'paper' | 'electronic'
+
 export interface LookupItem {
   id: number
   name: string
@@ -22,8 +24,13 @@ export interface ArchiveItem {
   status: LookupItem
   retention_period: RetentionPeriodItem
   department: LookupItem
+  archive_medium: ArchiveMedium
+  internal_archive_type: string
+  paper_copies: number
   archive_date: string | null
-  storage_location: string | null
+  paper_storage_location: string | null
+  electronic_storage_path: string | null
+  archiver_name: string | null
   owner_name: string | null
   archive_year: number | null
   security_level: string | null
@@ -39,12 +46,16 @@ export interface ArchiveItem {
 
 export interface ArchiveListParams {
   keyword?: string
+  archive_medium: ArchiveMedium
+  internal_archive_type?: string
   archive_type_id?: number
   department_id?: number
   status_id?: number
   page: number
   page_size: number
 }
+
+export type ArchiveExportParams = Omit<ArchiveListParams, 'page' | 'page_size'>
 
 export interface ArchiveListResponse {
   items: ArchiveItem[]
@@ -63,12 +74,17 @@ export interface ArchiveOptionsResponse {
 export interface ArchivePayload {
   archive_no: string
   title: string
+  archive_medium: ArchiveMedium
   archive_type_id: number
+  internal_archive_type: string
   status_id: number
   retention_period_id: number
   department_id: number
+  paper_copies: number
   archive_date: string | null
-  storage_location: string | null
+  paper_storage_location: string | null
+  electronic_storage_path: string | null
+  archiver_name: string | null
   owner_name: string | null
   archive_year: number | null
   security_level: string | null
@@ -87,6 +103,13 @@ export function getArchives(params: ArchiveListParams) {
       params,
     },
   )
+}
+
+export function exportArchives(params: ArchiveExportParams) {
+  return request.get<Blob, Blob>('/api/archives/export', {
+    params,
+    responseType: 'blob',
+  })
 }
 
 export function getArchiveOptions() {
@@ -115,5 +138,16 @@ export function updateArchive(archiveId: number, payload: ArchivePayload) {
 export function deleteArchive(archiveId: number) {
   return request.delete<ArchiveItem, ApiResponse<ArchiveItem>>(
     `/api/archives/${archiveId}`,
+  )
+}
+
+export function batchDeleteArchives(archiveIds: number[]) {
+  return request.delete<ArchiveListResponse, ApiResponse<ArchiveListResponse>>(
+    '/api/archives/batch',
+    {
+      data: {
+        archive_ids: archiveIds,
+      },
+    },
   )
 }

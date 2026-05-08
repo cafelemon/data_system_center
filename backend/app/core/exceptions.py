@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette import status
@@ -25,7 +26,13 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=fail(message="参数校验失败", code=422, data={"errors": exc.errors()}).model_dump(),
+            content=jsonable_encoder(
+                fail(
+                    message="参数校验失败",
+                    code=422,
+                    data={"errors": exc.errors()},
+                ).model_dump()
+            ),
         )
 
     @app.exception_handler(Exception)

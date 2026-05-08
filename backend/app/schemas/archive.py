@@ -1,6 +1,9 @@
 from datetime import date, datetime
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+ArchiveMedium = Literal["paper", "electronic"]
 
 
 class ArchiveTypeRead(BaseModel):
@@ -46,11 +49,16 @@ class ArchiveRead(BaseModel):
     archive_no: str
     title: str
     archive_type: ArchiveTypeRead
+    internal_archive_type: str
     status: ArchiveStatusRead
     retention_period: RetentionPeriodRead
     department: DepartmentRead
+    archive_medium: ArchiveMedium
+    paper_copies: int
     archive_date: date | None
-    storage_location: str | None
+    paper_storage_location: str | None
+    electronic_storage_path: str | None
+    archiver_name: str | None
     owner_name: str | None
     archive_year: int | None
     security_level: str | None
@@ -74,12 +82,17 @@ class ArchiveListResponse(BaseModel):
 class ArchivePayload(BaseModel):
     archive_no: str = Field(min_length=1, max_length=50)
     title: str = Field(min_length=1, max_length=255)
+    archive_medium: ArchiveMedium = Field(pattern="^(paper|electronic)$")
     archive_type_id: int
+    internal_archive_type: str = Field(min_length=1, max_length=100)
     status_id: int
     retention_period_id: int
     department_id: int
+    paper_copies: int = Field(default=1, ge=0)
     archive_date: date | None = None
-    storage_location: str | None = Field(default=None, max_length=100)
+    paper_storage_location: str | None = Field(default=None, max_length=100)
+    electronic_storage_path: str | None = Field(default=None, max_length=255)
+    archiver_name: str | None = Field(default=None, max_length=100)
     owner_name: str | None = Field(default=None, max_length=100)
     archive_year: int | None = Field(default=None, ge=1900, le=2100)
     security_level: str | None = Field(default=None, max_length=50)
@@ -89,6 +102,16 @@ class ArchivePayload(BaseModel):
     contract_no: str | None = Field(default=None, max_length=100)
     keywords: str | None = Field(default=None, max_length=255)
     remarks: str | None = None
+
+    @field_validator("internal_archive_type", mode="before")
+    @classmethod
+    def validate_internal_archive_type(cls, value: Any) -> str:
+        if not isinstance(value, str):
+            raise ValueError("内部档案类型不能为空")
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("内部档案类型不能为空")
+        return stripped
 
 
 class SelectOption(BaseModel):
@@ -110,3 +133,7 @@ class ArchiveOptionsResponse(BaseModel):
     statuses: list[SelectOption]
     departments: list[SelectOption]
     retention_periods: list[RetentionPeriodOption]
+
+
+class ArchiveBatchDeletePayload(BaseModel):
+    archive_ids: list[int] = Field(min_length=1, max_length=100)

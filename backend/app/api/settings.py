@@ -7,7 +7,7 @@ from starlette import status
 
 from app.api.deps import get_db, require_admin_user
 from app.core.responses import ApiResponse, ok
-from app.models import Archive, ArchiveType, OperationLog, RetentionPeriod, User
+from app.models import Archive, ArchiveType, RetentionPeriod, User
 from app.schemas.settings import (
     ArchiveTypeListResponse,
     ArchiveTypePayload,
@@ -17,6 +17,7 @@ from app.schemas.settings import (
     RetentionPeriodPayload,
     RetentionPeriodRead,
 )
+from app.services.operation_logs import write_operation_log
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
@@ -46,16 +47,15 @@ def write_settings_log(
     detail: str,
     request: Request,
 ) -> None:
-    db.add(
-        OperationLog(
-            user_id=operator.id,
-            module="系统设置",
-            operation_type=operation_type,
-            target_id=str(target_id),
-            target_name=target_name,
-            operation_detail=detail,
-            ip_address=request.client.host if request.client else None,
-        )
+    write_operation_log(
+        db,
+        module="系统设置",
+        operation_type=operation_type,
+        operator=operator,
+        target_id=str(target_id),
+        target_name=target_name,
+        detail=detail,
+        request=request,
     )
 
 

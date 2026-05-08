@@ -26,6 +26,7 @@ coverage/
 # Logs
 *.log
 logs/
+交付包/
 
 # Local database and runtime data
 *.sqlite

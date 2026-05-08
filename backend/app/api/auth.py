@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from starlette import status
@@ -9,6 +9,7 @@ from app.core.security import create_access_token, verify_password
 from app.models import User
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.user import UserRead
+from app.services.operation_logs import write_operation_log
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/login", response_model=ApiResponse[TokenResponse])
 def login(
     payload: LoginRequest,
+    request: Request,
     db: Session = Depends(get_db),
 ) -> ApiResponse[TokenResponse]:
     user = db.scalar(
@@ -40,12 +42,25 @@ def login(
         )
 
     access_token, expires_in = create_access_token(user.id)
+    user_read = UserRead.model_validate(user)
+    write_operation_log(
+        db,
+        module="登录认证",
+        operation_type="登录系统",
+        operator=user,
+        target_id=str(user.id),
+        target_name=user.real_name,
+        detail=f"用户 {user.username} 登录系统",
+        request=request,
+    )
+    db.commit()
+
     return ok(
         TokenResponse(
             access_token=access_token,
             token_type="bearer",
             expires_in=expires_in,
-            user=UserRead.model_validate(user),
+            user=user_read,
         )
     )
 
